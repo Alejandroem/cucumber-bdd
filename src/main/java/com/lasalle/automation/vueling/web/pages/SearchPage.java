@@ -3,6 +3,7 @@ package com.lasalle.automation.vueling.web.pages;
 import com.lasalle.automation.vueling.web.domain.SearchDto;
 import net.serenitybdd.core.pages.PageObject;
 import net.serenitybdd.core.pages.WebElementFacade;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.support.FindBy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,8 +36,12 @@ public class SearchPage  extends PageObject{
         typeInto(Name, searchDto.getOrigin());
         typeInto(Destination, searchDto.getDestination());
 
-        typeInto(Outbound, searchDto.getOutbound());
-        Outbound.
+        ((JavascriptExecutor)this.getDriver()).executeScript(
+                "arguments[0].removeAttribute('readonly','readonly')",Outbound);
+
+        ((JavascriptExecutor)this.getDriver()).executeScript(
+                "arguments[0].value = arguments[1]",Outbound, searchDto.getOutbound());
+
         //typeInto(Return, searchDto.getReturnDate());
         typeInto(Passengers, searchDto.getPassengers());
 
