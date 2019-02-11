@@ -12,25 +12,35 @@ import java.lang.invoke.MethodHandles;
 public class SearchPage  extends PageObject{
     private static final Logger LOGGER = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-    @FindBy(css = ".searchbar-container .searchbar-main .searchbar-main_tab-content .searchbar-main_tab-content_pane .form-group>.form-input .input-group input")
+    @FindBy(css = ".searchbar-container .searchbar-main .searchbar-main_tab-content .searchbar-main_tab-content_pane .form-group>.form-input.origin .input-group input")
     private WebElementFacade Name;
-    private WebElementFacade txtDestination;
-    private WebElementFacade txtOutbound;
-    private WebElementFacade txtReturn;
-    private WebElementFacade txtPassengers;
 
+    @FindBy(css = ".searchbar-container .searchbar-main .searchbar-main_tab-content .searchbar-main_tab-content_pane .form-group>.form-input.destination .input-group input")
+    private WebElementFacade Destination;
+
+    @FindBy(css= "#inputGoing")
+    private WebElementFacade Outbound;
+
+    private WebElementFacade Return;
+
+    @FindBy( css="#passengers-input")
+    private WebElementFacade Passengers;
+
+    @FindBy( css="#btnSubmitHomeSearcher")
     private WebElementFacade btnSearch;
 
     public void searchFlight(SearchDto searchDto){
         LOGGER.debug("Search flight starts, search: [{}]", searchDto);
 
         typeInto(Name, searchDto.getOrigin());
-        //typeInto(txtDestination, searchDto.getDestination());
-        //typeInto(txtOutbound, searchDto.getOutbound());
-        //typeInto(txtReturn, searchDto.getReturnDate());
-        //typeInto(txtPassengers, searchDto.getPassengers());
+        typeInto(Destination, searchDto.getDestination());
 
-        //btnSearch.click();
+        typeInto(Outbound, searchDto.getOutbound());
+        Outbound.
+        //typeInto(Return, searchDto.getReturnDate());
+        typeInto(Passengers, searchDto.getPassengers());
+
+        btnSearch.click();
 
     }
 
