@@ -1,23 +1,14 @@
 package com.lasalle.automation.vueling.web.pages;
 
-import com.lasalle.automation.vueling.web.domain.DateRanges;
 import com.lasalle.automation.vueling.web.domain.SearchDto;
 import net.serenitybdd.core.pages.PageObject;
 import net.serenitybdd.core.pages.WebElementFacade;
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Calendar;
-import java.util.Date;
-
-import static com.lasalle.automation.vueling.web.domain.DateRanges.*;
+import java.util.List;
 
 
 public class SearchPage  extends PageObject{
@@ -32,6 +23,13 @@ public class SearchPage  extends PageObject{
     @FindBy(css= "#inputGoing")
     private WebElementFacade Outbound;
 
+
+    @FindBy(css = "td:not(.ui-state-disabled) a.ui-state-default")
+    private List<WebElementFacade> availableDaysOnCalendar;
+
+    @FindBy(css = ".ui-state-active")
+    private List<WebElementFacade> active;
+
     private WebElementFacade Return;
 
     @FindBy( css="#passengers-input")
@@ -45,72 +43,37 @@ public class SearchPage  extends PageObject{
 
         Name.typeAndEnter(searchDto.getOrigin());
         Destination.typeAndEnter(searchDto.getDestination());
-//        ((JavascriptExecutor)this.getDriver()).executeScript(
-//                "arguments[0].removeAttribute('readonly','readonly')",Outbound);
-//
-//        ((JavascriptExecutor)this.getDriver()).executeScript(
-//                "arguments[0].value = arguments[1]",Outbound, searchDto.getOutbound());
-//
-//        ((JavascriptExecutor)this.getDriver()).executeScript(
-//                "arguments[0].removeAttribute('readonly','readonly')",Passengers);
-        Outbound.click();
-        selectDate(searchDto.getOutbound());
-
-        //typeInto(Passengers, searchDto.getPassengers());
-
+        clickAvailableOutbound(searchDto.getOutbound());
         btnSearch.click();
-
-
     }
 
-    private void selectDate(String outbound) {
+    private void clickAvailableOutbound(String flightOutbound){
+        boolean hasChangedMonth = false;
 
-        //Calcular la fecha de la siguiente semana
-        Date outboundDate = this.getDateToSelect(outbound);
+        int currentDay = Integer.parseInt(active.get(0).getText());
+        int firstDayOfAllowedPeriod= currentDay + getDaysForPeriod(flightOutbound);
 
-        String xpathSelector = "//div[contains(@class,'"+getMonth(outboundDate)+"')]//*[text() = '"+getDay(outboundDate)+"']";
-        System.out.println("Xpath selector "+ xpathSelector);
-       //div[contains(@class,'ui-datepicker-group-first')]//*[text() = '17']
-        waitFor(xpathSelector);
-        WebElement calendarDay = getDriver().findElement(By.xpath(xpathSelector));
-        calendarDay.click();
+        for (int i = 0; i < availableDaysOnCalendar.size(); i++) {
+            int currentSearchedDay = Integer.parseInt(availableDaysOnCalendar.get(i).getText());
+
+            if (!hasChangedMonth && currentSearchedDay < currentDay){
+                hasChangedMonth = true;
+            }
+
+            if (currentSearchedDay > firstDayOfAllowedPeriod || hasChangedMonth){
+                availableDaysOnCalendar.get(i).click();
+                break;
+            }
+        }
     }
 
-    private Date getDateToSelect(String outbound) {
-        switch (outbound){
+    private int getDaysForPeriod(String periodName){
+        switch(periodName){
             case "NEXT_WEEK":
-                Calendar calendar = Calendar.getInstance();
-                calendar.setTime(new Date());
-                calendar.add(Calendar.DAY_OF_YEAR, 7);
-                return calendar.getTime();
-
+                return 7;
             default:
-                return new Date();
+                return 1;
         }
     }
-
-    private boolean isOnThisMont(Date compare){
-        Date today = new Date();
-
-        LocalDate localDateToday = today.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        LocalDate localDateCompare = compare.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-
-        return localDateToday.getMonth() == localDateCompare.getMonth();
-    }
-
-    private Integer getDay(Date date){
-        LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        return localDate.getDayOfMonth();
-
-    }
-
-    private String getMonth(Date outboundDate){
-        if(isOnThisMont(outboundDate)){
-            return "ui-datepicker-group-first";
-        }else{
-            return "ui-datepicker-group-middle";
-        }
-    }
-
 
 }
