@@ -2,6 +2,7 @@ package com.lasalle.automation.vueling.web.stepsdefs.search;
 
 import com.lasalle.automation.vueling.web.domain.SearchDto;
 import com.lasalle.automation.vueling.web.pages.SearchPage;
+import com.lasalle.automation.vueling.web.pages.SearchResultPage;
 import cucumber.api.PendingException;
 import cucumber.api.java.After;
 import cucumber.api.java.Before;
@@ -14,6 +15,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.Assert;
 
 import java.lang.invoke.MethodHandles;
 import java.util.List;
@@ -29,6 +31,10 @@ public class SearchStepsDefs {
 
 
     private SearchPage searchPage;
+
+    private SearchResultPage resultPage;
+
+
 
     private List<SearchDto> searches;
 
@@ -63,5 +69,8 @@ public class SearchStepsDefs {
 
     @Then("^I get available flight$")
     public void iGetAvailableFlight() {
+        LOGGER.debug("Check if the result page is present");
+        resultPage.setDriver(this.driver);
+        Assert.isTrue(resultPage.isOnResultPage(), "We are on the result page.");
     }
 }
